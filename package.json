@@ -1,0 +1,386 @@
+{
+  "name": "claude-code-cli",
+  "displayName": "Claude Code (CLI Integration)",
+  "description": "Chat with Claude Code directly inside VS Code by integrating with the Claude CLI.",
+  "version": "0.2.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "keywords": [
+    "claude",
+    "ai",
+    "cli",
+    "agent",
+    "chat"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onUri"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Claude Code (CLI)",
+      "properties": {
+        "claudeCode.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the `claude` CLI executable. Leave empty to auto-detect from PATH."
+        },
+        "claudeCode.model": {
+          "type": "string",
+          "default": "",
+          "description": "Default model alias passed to claude (e.g. 'sonnet', 'opus'). Empty = CLI default."
+        },
+        "claudeCode.permissionMode": {
+          "type": "string",
+          "enum": [
+            "default",
+            "acceptEdits",
+            "plan",
+            "bypassPermissions"
+          ],
+          "default": "default",
+          "description": "Initial permission mode for new conversations. (Alias of `initialPermissionMode`.)"
+        },
+        "claudeCode.initialPermissionMode": {
+          "type": "string",
+          "enum": [
+            "default",
+            "acceptEdits",
+            "plan",
+            "bypassPermissions"
+          ],
+          "default": "default",
+          "description": "Initial permission mode for new conversations. Overrides `permissionMode` when set to a non-default value."
+        },
+        "claudeCode.useTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Launch Claude in a VS Code terminal instead of the chat webview."
+        },
+        "claudeCode.preferredLocation": {
+          "type": "string",
+          "enum": [
+            "sidebar",
+            "panel"
+          ],
+          "default": "sidebar",
+          "description": "Where Claude opens by default."
+        },
+        "claudeCode.environmentVariables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "value"
+            ]
+          },
+          "default": [],
+          "description": "Extra environment variables passed to the claude process."
+        },
+        "claudeCode.useCtrlEnterToSend": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use Ctrl/Cmd+Enter to send (Enter inserts a newline)."
+        },
+        "claudeCode.additionalArgs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional CLI arguments appended to every claude invocation."
+        },
+        "claudeCode.autosave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-save dirty editors before Claude reads or writes any file."
+        },
+        "claudeCode.enableNewConversationShortcut": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Ctrl/Cmd+N to start a new conversation when the Claude panel is focused."
+        },
+        "claudeCode.hideOnboarding": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide the onboarding panel shown to new users."
+        },
+        "claudeCode.respectGitIgnore": {
+          "type": "boolean",
+          "default": true,
+          "description": "Exclude files matched by .gitignore patterns from @-mention search."
+        },
+        "claudeCode.usePythonEnvironment": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the workspace's selected Python interpreter when launching Claude (requires the Python extension)."
+        },
+        "claudeCode.disableLoginPrompt": {
+          "type": "boolean",
+          "default": false,
+          "description": "Skip the sign-in prompt — useful when configuring a third-party provider via ~/.claude/settings.json."
+        },
+        "claudeCode.allowDangerouslySkipPermissions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Expose the Bypass Permissions mode in the picker. Only enable in sandboxed environments without internet access."
+        },
+        "claudeCode.claudeProcessWrapper": {
+          "type": "string",
+          "default": "",
+          "description": "Optional executable used to launch the claude process (the wrapper receives the claude path and args)."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "claudeCode.open",
+        "title": "Claude Code: Open",
+        "icon": {
+          "light": "resources/claude-logo.svg",
+          "dark": "resources/claude-logo.svg"
+        }
+      },
+      {
+        "command": "claudeCode.openInPanel",
+        "title": "Claude Code: Open in New Tab"
+      },
+      {
+        "command": "claudeCode.openInNewWindow",
+        "title": "Claude Code: Open in New Window"
+      },
+      {
+        "command": "claudeCode.openInSidebar",
+        "title": "Claude Code: Open in Side Bar"
+      },
+      {
+        "command": "claudeCode.openInTerminal",
+        "title": "Claude Code: Open in Terminal"
+      },
+      {
+        "command": "claudeCode.newConversation",
+        "title": "Claude Code: New Conversation"
+      },
+      {
+        "command": "claudeCode.resumeConversation",
+        "title": "Claude Code: Resume Conversation"
+      },
+      {
+        "command": "claudeCode.continueLast",
+        "title": "Claude Code: Continue Last Conversation"
+      },
+      {
+        "command": "claudeCode.stop",
+        "title": "Claude Code: Stop / Interrupt"
+      },
+      {
+        "command": "claudeCode.insertAtMention",
+        "title": "Claude Code: Insert @-Mention for Selection"
+      },
+      {
+        "command": "claudeCode.shareDiagnostics",
+        "title": "Claude Code: Send Problems to Claude"
+      },
+      {
+        "command": "claudeCode.shareTerminalOutput",
+        "title": "Claude Code: Send Terminal Selection to Claude"
+      },
+      {
+        "command": "claudeCode.logout",
+        "title": "Claude Code: Logout"
+      },
+      {
+        "command": "claudeCode.openWalkthrough",
+        "title": "Claude Code: Open Walkthrough"
+      },
+      {
+        "command": "claudeCode.showLogs",
+        "title": "Claude Code: Show Logs"
+      },
+      {
+        "command": "claudeCode.focus",
+        "title": "Claude Code: Focus Chat Input"
+      },
+      {
+        "command": "claudeCode.refreshSessions",
+        "title": "Claude Code: Refresh Sessions",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "claudeCode.openSession",
+        "title": "Claude Code: Open Session"
+      },
+      {
+        "command": "claudeCode.removeSession",
+        "title": "Claude Code: Remove Session",
+        "icon": "$(trash)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "claudeCode.focus",
+        "key": "ctrl+escape",
+        "mac": "cmd+escape",
+        "when": "!config.claudeCode.useTerminal"
+      },
+      {
+        "command": "claudeCode.openInPanel",
+        "key": "ctrl+shift+escape",
+        "mac": "cmd+shift+escape",
+        "when": "!config.claudeCode.useTerminal"
+      },
+      {
+        "command": "claudeCode.insertAtMention",
+        "key": "alt+k",
+        "mac": "alt+k",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "claudeCode.newConversation",
+        "key": "ctrl+n",
+        "mac": "cmd+n",
+        "when": "config.claudeCode.enableNewConversationShortcut && claudeCode.focused"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "claudeCodeSidebar",
+          "title": "Claude Code",
+          "icon": "resources/claude-logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "claudeCodeSidebar": [
+        {
+          "type": "webview",
+          "id": "claudeCode.chatView",
+          "name": "Chat"
+        },
+        {
+          "id": "claudeCode.sessions",
+          "name": "Sessions"
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "claudeCode.insertAtMention",
+          "group": "1_claude@1",
+          "when": "editorHasSelection"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "claudeCode.open",
+          "group": "navigation@99"
+        }
+      ],
+      "terminal/context": [
+        {
+          "command": "claudeCode.shareTerminalOutput",
+          "group": "1_claude@1"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "claudeCode.refreshSessions",
+          "when": "view == claudeCode.sessions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "claudeCode.removeSession",
+          "when": "view == claudeCode.sessions && viewItem == session",
+          "group": "inline"
+        }
+      ]
+    },
+    "walkthroughs": [
+      {
+        "id": "claudeCode.gettingStarted",
+        "title": "Get started with Claude Code",
+        "description": "Connect the CLI, open the chat panel, and learn the keyboard shortcuts.",
+        "steps": [
+          {
+            "id": "install-cli",
+            "title": "Install the Claude CLI",
+            "description": "The extension talks to the local `claude` binary. Install it from the [Claude Code docs](https://code.claude.com/docs).",
+            "media": {
+              "image": "resources/claude-logo.svg",
+              "altText": "Claude logo"
+            }
+          },
+          {
+            "id": "open-chat",
+            "title": "Open the chat panel",
+            "description": "Press [Ctrl+Esc / Cmd+Esc](command:claudeCode.open) to focus the chat. Or use the Spark icon in the editor toolbar.",
+            "media": {
+              "image": "resources/claude-logo.svg",
+              "altText": "Open the chat panel"
+            }
+          },
+          {
+            "id": "mention-files",
+            "title": "Reference files with @-mentions",
+            "description": "Type `@` to fuzzy-search files. Or select code in your editor and press [Alt+K](command:claudeCode.insertAtMention) to insert a path-with-line-range reference.",
+            "media": {
+              "image": "resources/claude-logo.svg",
+              "altText": "Insert an @-mention"
+            }
+          },
+          {
+            "id": "permission-modes",
+            "title": "Choose a permission mode",
+            "description": "Use Plan mode to review proposed actions before they run, or Auto-Accept to let Claude edit without confirming each step. Configure the default in [Settings](command:workbench.action.openSettings?%22@ext:local.claude-code-cli%22).",
+            "media": {
+              "image": "resources/claude-logo.svg",
+              "altText": "Permission modes"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Untrusted workspaces are not supported."
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "watch": "node esbuild.config.js --watch",
+    "compile": "tsc -p . --noEmit",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "node esbuild.config.js --production"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.94.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "highlight.js": "^11.11.1",
+    "typescript": "^5.5.4"
+  }
+}

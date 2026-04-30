@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(code --install-extension \"d:/cluadecodeplugin/claude-code-cli-0.1.0.vsix\" --force)",
+      "Bash(cmd //c \"code --install-extension d:\\\\cluadecodeplugin\\\\claude-code-cli-0.1.0.vsix --force\")",
+      "PowerShell(code --install-extension \"d:\\\\cluadecodeplugin\\\\claude-code-cli-0.1.0.vsix\" --force)",
+      "PowerShell($cmd = Join-Path $env:LOCALAPPDATA 'Programs\\\\Microsoft VS Code\\\\bin\\\\code.cmd'; & $cmd --new-window \"d:\\\\cluadecodeplugin\")",
+      "PowerShell($cmd = Join-Path $env:LOCALAPPDATA 'Programs\\\\Microsoft VS Code\\\\bin\\\\code.cmd'; & $cmd --install-extension \"d:\\\\cluadecodeplugin\\\\claude-code-cli-0.1.0.vsix\" --force)",
+      "PowerShell(Get-Process Code -ErrorAction SilentlyContinue)",
+      "PowerShell($proc = Get-Process -Id 32632 -ErrorAction SilentlyContinue; if \\($proc\\) { $proc.CloseMainWindow\\(\\) | Out-Null; Start-Sleep -Seconds 2; if \\(-not $proc.HasExited\\) { Stop-Process -Id 32632 -Force } }; $cmd = Join-Path $env:LOCALAPPDATA 'Programs\\\\Microsoft VS Code\\\\bin\\\\code.cmd'; & $cmd \"d:\\\\cluadecodeplugin\")",
+      "Bash(npm run *)",
+      "Bash(code --install-extension d:/cluadecodeplugin/claude-code-cli-0.1.0.vsix --force)",
+      "PowerShell(& \"C:\\\\Users\\\\svisw\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\bin\\\\code.cmd\" --install-extension \"d:\\\\cluadecodeplugin\\\\claude-code-cli-0.1.0.vsix\" --force)",
+      "Bash(node esbuild.config.js --production)",
+      "WebFetch(domain:marketplace.visualstudio.com)",
+      "WebFetch(domain:docs.claude.com)",
+      "Bash(code --install-extension d:/cluadecodeplugin/claude-code-cli-0.2.0.vsix --force)",
+      "Bash(\"C:/Users/svisw/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd\" --install-extension d:/cluadecodeplugin/claude-code-cli-0.2.0.vsix --force)",
+      "Bash(git -C /d/cluadecodeplugin status)",
+      "Bash(git -C /d/cluadecodeplugin init)",
+      "Bash(git -C /d/cluadecodeplugin remote add origin https://github.com/Optimusprime-2021/claudeplugin.git)",
+      "Bash(git -C /d/cluadecodeplugin branch -M main)",
+      "Bash(git -C /d/cluadecodeplugin add .)",
+      "Bash(git -C /d/cluadecodeplugin status --short)"
+    ],
+    "additionalDirectories": [
+      "D:\\cluadecodeplugin"
+    ]
+  }
+}
